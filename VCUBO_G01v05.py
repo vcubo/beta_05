@@ -153,11 +153,11 @@ def page_one():
     gen01, gen02 = st.columns(2)
     with gen01:
         st.write("Total composed uncertainty and risk's impact distribution")
-        st.plotly_chart(figures_general[0])
+        st.plotly_chart(figures_general[0], use_container_width=True)
     with gen02:
         st.write("Decomposed uncertainty and risk's impact distribution")
-        st.plotly_chart(figures_general[1])
-    st.plotly_chart(figures_general[2])
+        st.plotly_chart(figures_general[1], use_container_width=True)
+    st.plotly_chart(figures_general[2], use_container_width=True)
 
 
 
@@ -178,10 +178,10 @@ def page_two():
     st.write(str(len(df_c1))+' projects registered')
     com01, com02 = st.columns(2)
     with com01:
-        st.plotly_chart(figures_c001[0])
+        st.plotly_chart(figures_c001[0], use_container_width=True)
     with com02:
-        st.plotly_chart(figures_c001[1])
-    st.plotly_chart(figures_c001[2])
+        st.plotly_chart(figures_c001[1], use_container_width=True)
+    st.plotly_chart(figures_c001[2], use_container_width=True)
 
 def page_three():
     # PREDICTIVE ANALYTICS (PROJECT) #
@@ -226,15 +226,15 @@ def page_three():
 
         st.subheader('Distribution of similar projects ('+str(len(st.session_state.df_p1b))+' projects):')
         pr01a, pr01b = st.columns(2)
-        with pr01a: st.plotly_chart(figures_p01[0])
-        with pr01b: st.plotly_chart(figures_p01[1])
+        with pr01a: st.plotly_chart(figures_p01[0], use_container_width=True)
+        with pr01b: st.plotly_chart(figures_p01[1], use_container_width=True)
 
     st.header("Project analysis")
     pr_analysis = st.expander('EXPAND')
     with pr_analysis:
         pr02a, pr02b = st.columns(2)
-        with pr02a: st.plotly_chart(st.session_state.figures_p1_fit[0])
-        with pr02b: st.plotly_chart(st.session_state.figures_p1_fit[1])
+        with pr02a: st.plotly_chart(st.session_state.figures_p1_fit[0], use_container_width=True)
+        with pr02b: st.plotly_chart(st.session_state.figures_p1_fit[1], use_container_width=True)
         with pr02a:
             st.subheader('Pre-mitigated project statistics')
             st.write("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
@@ -261,9 +261,9 @@ def page_three():
 
         pr04a, pr04b = st.columns(2)
         with pr04a:
-            st.plotly_chart(scatter_hist(partials_df_comp,risk_dict[x3d_sel][2]))
+            st.plotly_chart(scatter_hist(partials_df_comp,risk_dict[x3d_sel][2]), use_container_width=True)
         with pr04b:
-            st.plotly_chart(scatter_hist(partials_df_comp,x3d_sel))
+            st.plotly_chart(scatter_hist(partials_df_comp,x3d_sel), use_container_width=True)
     #st.plotly_chart(scatter_3dim (st.session_state.df_p1b, risk_dict[x3d_sel][0], risk_dict[x3d_sel][1], 'DEV_EVE', 'DEV_EVE', 'DEV_TOT'))
 
 def page_four():
@@ -323,14 +323,14 @@ def page_four():
         #    #mitigated_plot = scatter_hist(compute_partials(st.session_state.df_p1m, df_part_index),risk_dict[x3d_sel][2])
         #    st.plotly_chart(polar_mit)
         with pr05d:
-            st.plotly_chart(st.session_state.figures_p1m[2])
+            st.plotly_chart(st.session_state.figures_p1m[2], use_container_width=True)
 
         pr08a, pr08b, pr08c = st.columns((4,1,4))
-        with pr08a: st.plotly_chart(st.session_state.figures_p1m[0])
-        with pr08c: st.plotly_chart(st.session_state.figures_p1m[1])
+        with pr08a: st.plotly_chart(st.session_state.figures_p1m[0], use_container_width=True)
+        with pr08c: st.plotly_chart(st.session_state.figures_p1m[1], use_container_width=True)
         with pr08a:
             st.subheader('Pre-mitigation charts:')
-            st.plotly_chart(st.session_state.figures_p1_fit[0])
+            st.plotly_chart(st.session_state.figures_p1_fit[0], use_container_width=True)
         with pr08b:
             x = np.linspace(0,1,int(1/st.session_state.hist_xbin_size3))
             upd_mit_chart = st.button('Update mitigated fitting curve')
@@ -342,7 +342,7 @@ def page_four():
                 mit_dist_chart = st.session_state.figures_p1_fit[1]
         with pr08c:
             st.subheader('Pre and post-mitigation fitting curves:')
-            st.plotly_chart(mit_dist_chart)
+            st.plotly_chart(mit_dist_chart, use_container_width=True)
 
 
 
