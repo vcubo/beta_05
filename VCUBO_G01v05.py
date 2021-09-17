@@ -169,6 +169,13 @@ def page_two():
         df_c = df[(df['COUNTRY']=='Argentina')&((df['LOB']=='O&G - Downstream')^(df['LOB']=='O&G - Upstream'))]
         return df_c
 
+    if 'df_filter' not in st.session_state:
+        selection_gen = 5*['All']
+        st.session_state.df_filter = df[filter_gen(selection_gen,df)]
+    if 'hist_xbin_size' not in st.session_state:
+        st.session_state.hist_xbin_size = 0.05
+
+
     df_c1 = df_com(df)
     figures_c001 = const_figures(df_c1, st.session_state.df_filter, st.session_state.hist_xbin_size, df_coef, df_part_index)
     figures_c001[0].data[1].name = 'Total deviation -company'
@@ -183,10 +190,11 @@ def page_two():
         st.plotly_chart(figures_c001[1], use_container_width=True)
     st.plotly_chart(figures_c001[2], use_container_width=True)
 
+df2 = import_df(db_raw_path) # secondary dataframefor individual project operations
+
 def page_three():
     # PREDICTIVE ANALYTICS (PROJECT) #
     # Initial datafeame upload:
-    df2 = import_df(db_raw_path) # secondary dataframefor individual project operations
     # Project Characterizarion:
     st.header("Project setup")
     pr_setup = st.expander("EXPAND", expanded=True)
@@ -271,6 +279,19 @@ def page_four():
     st.subheader("Analize risk mitigation impact and conduct a high-level QSRA")
     risk_mitigate = st.expander('MITIGATE', expanded=True)
 
+    # Generates df and figures in mitigation page in case a project wasn't set in the previus step
+    if 'hist_xbin_size2' not in st.session_state:
+        st.session_state.hist_xbin_size2=0.05
+        st.session_state.hist_xbin_size3=0.05
+    if 'df_p1b' not in st.session_state:
+        selection_gen = 5*['All']
+        st.session_state.df_p1b = df2[filter_gen(selection_gen,df2)].copy(deep=True)
+        st.session_state.pre_stat = df_stats(st.session_state.df_p1b)
+        figures_p01 = const_figures(st.session_state.df_p1b, st.session_state.df_p1b, st.session_state.hist_xbin_size2, df_coef, df_part_index)
+        figures_p1_fit = fit_distr(st.session_state.df_p1b, st.session_state.hist_xbin_size3)
+        st.session_state.figures_p1_fit = figures_p1_fit
+
+
     st.session_state.df_p1m = st.session_state.df_p1b.copy(deep=True)
     if 'soc_mit' not in st.session_state: st.session_state.soc_mit = 0
     if 'proc_mit' not in st.session_state: st.session_state.proc_mit = 0
@@ -311,7 +332,7 @@ def page_four():
         st.session_state.pos_stat = df_stats(st.session_state.df_p1m[0])
         #st.write(pos_stat)
         with pr05c:
-            st.header('Post-mitigation probabilities')
+            st.header('Post-mitigation probabilities ')
             st.subheader("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
             st.subheader('Distribution mean: '+str(np.round(st.session_state.pos_stat['means'][2]*100,2))+'%(fit) vs '+str(np.round(st.session_state.pre_stat['means'][2]*100,2))+'%(fit)')
             st.subheader('Distribution median (P50): '+str(np.round(st.session_state.pos_stat['median'][2]*100,1))+'%(fit) vs '+str(np.round(st.session_state.pre_stat['median'][2]*100,2))+'%(fit)')
