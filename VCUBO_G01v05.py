@@ -46,16 +46,16 @@ df_part_index = ['Country','LoB','Site','Project Size', 'Contractor',
 
 if __name__ =="__main__":
 
-    st.sidebar.image('/Users/facu/Desktop/VCUBO/03 DESIGN/IMAGES/vcubo_beta2.png',width=150)
-    st.sidebar.write('Data driven QSRA - v0.4 beta')
+    st.sidebar.image('/vcubo_beta2.png',width=150)
+    st.sidebar.write('Data driven QSRA - v0.5 beta')
 
     # specify the menu definition we'll stick in the sidebar
     side_menu_data = [
         {'id':'First page', 'icon': "bi bi-collection", 'label':"Explore database",'ttip':"Quick product intro"},
-        {'id':'Second page', 'icon': "bi bi-file-bar-graph", 'label':"Second page",'ttip':"Quick product intro"},
-        {'id':'Third page', 'icon': "bi bi-bar-chart-fill", 'label':"Second page",'ttip':"Quick product intro"},
-        {'id':'Fourth page', 'icon': "bi bi-sliders", 'label':"Second page",'ttip':"Quick product intro"},
-        {'id':'Fifth page', 'icon': "fas fa-brain", 'label':"Second page",'ttip':"Quick product intro"},
+        {'id':'Second page', 'icon': "bi bi-file-bar-graph", 'label':"My Company",'ttip':"Quick product intro"},
+        {'id':'Third page', 'icon': "bi bi-bar-chart-fill", 'label':"Project QRA",'ttip':"Quick product intro"},
+        {'id':'Fourth page', 'icon': "bi bi-sliders", 'label':"QRA mitigation",'ttip':"Quick product intro"},
+        {'id':'Fifth page', 'icon': "fas fa-brain", 'label':"Prescriptive AI",'ttip':"Quick product intro"},
     ]
 
     # specify the primary menu definition
@@ -72,10 +72,10 @@ if __name__ =="__main__":
     #over_theme = {'txc_inactive': '#FFFFFF','menu_background':'','txc_active':'yellow','option_active':'blue'}
     over_theme = {'txc_inactive': '#FFFFFF', 'menu_background':'#494854'}
 
-    menu_id = hc.nav_bar(menu_definition=menu_data,home_name='Home',override_theme=over_theme)
+    menu_id = hc.nav_bar(menu_definition=menu_data,override_theme=over_theme, home_name='Home',)
 
-    with st.sidebar:
-        side_menu_id = hc.nav_bar(menu_definition=side_menu_data,key='sidebar',login_name='Login',override_theme=over_theme,first_select=6)
+    #with st.sidebar:
+        #menu_id = hc.nav_bar(menu_definition=menu_data,key='sidebar',override_theme=over_theme,first_select=6) #login_name='Login',
 
     #get the id of the menu item clicked
     #st.info(f"{menu_id}")
@@ -94,22 +94,23 @@ def main():
     }
 
     # Widget to select your page, you can choose between radio buttons or a selectbox
-    page = st.sidebar.selectbox("Select your page", tuple(pages.keys()))
+    #page = st.sidebar.selectbox("Select your page", tuple(pages.keys()))
     #page = st.sidebar.radio("Select your page", tuple(pages.keys()))
-
-    page_1 = st.sidebar.button('First page')
-    page_2 = st.sidebar.button('Second page')
-    if page_2:
-        page = 'Second page'
-    if page_1:
-        page = 'First page'
+    #page_1 = st.sidebar.button('First page')
+    #page_2 = st.sidebar.button('Second page')
+    #if page_2:
+    #    page = 'Second page'
+    #if page_1:
+    #    page = 'First page'
     if menu_id:
         page = menu_id
+    #if side_menu_id:
+    #    page = side_menu_id
     # Display the selected page with the session state
     pages[page]()
 
 def home_page():
-    st.image('/Users/facu/Desktop/VCUBO/03 DESIGN/IMAGES/homepage.png')
+    st.image('/homepage.png')
     # ...
 
 def page_one():
@@ -188,7 +189,7 @@ def page_three():
     df2 = import_df(db_raw_path) # secondary dataframefor individual project operations
     # Project Characterizarion:
     st.header("Project setup")
-    pr_setup = st.expander("EXPAND")
+    pr_setup = st.expander("EXPAND", expanded=True)
     with pr_setup:
         prf01, prf02, prf03, prf04, prf05, prf06 = st.columns(6)
         if 'select_country2' not in st.session_state: st.session_state.select_country2 = "All"
@@ -268,7 +269,7 @@ def page_three():
 def page_four():
     st.header("Project - Predictive analytics")
     st.subheader("Analize risk mitigation impact and conduct a high-level QSRA")
-    risk_mitigate = st.expander('. . . ', expanded=False)
+    risk_mitigate = st.expander('MITIGATE', expanded=True)
 
     st.session_state.df_p1m = st.session_state.df_p1b.copy(deep=True)
     if 'soc_mit' not in st.session_state: st.session_state.soc_mit = 0
@@ -290,7 +291,10 @@ def page_four():
             reset_mit = st.button('Reset')
             #if reset_mit:
             st.session_state.df_p1m = update_impact(st.session_state.df_p1m, st.session_state.df_p1b, st.session_state.mitigation, df_coef)
-            st.write(st.session_state.df_p1m[1])
+
+    show_data = st.expander('DATA', expanded=False)
+    with show_data:
+        st.write(st.session_state.df_p1m[1])
         st.write(st.session_state.df_p1b)
         st.write(st.session_state.df_p1m[0])
 
@@ -300,7 +304,8 @@ def page_four():
         #    st.write('Distribution mean: '+''+'(fit)')
         #    st.write('Distribution median (P50): ')
         #    st.write('Average deviation percentage attributed to Risk events: ')
-
+    show_charts = st.expander('CHARTS', expanded=True)
+    with show_charts:
         st.session_state.figures_p1m = const_figures(st.session_state.df_p1b, st.session_state.df_p1m[0], st.session_state.hist_xbin_size3, df_coef, df_part_index)
         st.session_state.figures_p1m_fit = fit_distr(st.session_state.df_p1m[0], st.session_state.hist_xbin_size3)
         st.session_state.pos_stat = df_stats(st.session_state.df_p1m[0])

@@ -178,11 +178,11 @@ def update_impact (df, df_base, mitigation, df_coef):
     df['WEA_MIT'] = df_base['WEA_MIT']+(df_base['WEA']-df_base['WEA_MIT'])*(mitigation[3])
     df['MGM_MIT'] = df_base['MGM_MIT']+(df_base['MGM']-df_base['MGM_MIT'])*(mitigation[4])
 
-    df['Social'] =       df_coef.iloc[0]['SOC'] * df_base['SOC_EMEAN'] * (df['SOC']-df['SOC_MIT']) * df_coef.iloc[0]['MIT_ef']
-    df['Procurement'] =  df_coef.iloc[0]['PROC']* df_base['PROC_EMEAN']* (df['PROC']-df['PROC_MIT'])*df_coef.iloc[0]['MIT_ef']
-    df['Engineering'] =  df_coef.iloc[0]['ENG'] * df_base['ENG_EMEAN'] * (df['ENG']-df['ENG_MIT']) * df_coef.iloc[0]['MIT_ef']
-    df['Weather'] =      df_coef.iloc[0]['WEA'] * df_base['WEA_EMEAN'] * (df['WEA']-df['WEA_MIT']) * df_coef.iloc[0]['MIT_ef']
-    df['Management'] =   df_coef.iloc[0]['MGM'] * df_base['MGM_EMEAN'] * (df['MGM']-df['MGM_MIT']) * df_coef.iloc[0]['MIT_ef']
+    df['Social'] =       df_coef.iloc[0]['SOC'] * df_base['SOC_EMEAN'] * (df['SOC']-df['SOC_MIT'] * df_coef.iloc[0]['MIT_ef'])
+    df['Procurement'] =  df_coef.iloc[0]['PROC']* df_base['PROC_EMEAN']* (df['PROC']-df['PROC_MIT']*df_coef.iloc[0]['MIT_ef'])
+    df['Engineering'] =  df_coef.iloc[0]['ENG'] * df_base['ENG_EMEAN'] * (df['ENG']-df['ENG_MIT'] * df_coef.iloc[0]['MIT_ef'])
+    df['Weather'] =      df_coef.iloc[0]['WEA'] * df_base['WEA_EMEAN'] * (df['WEA']-df['WEA_MIT'] * df_coef.iloc[0]['MIT_ef'])
+    df['Management'] =   df_coef.iloc[0]['MGM'] * df_base['MGM_EMEAN'] * (df['MGM']-df['MGM_MIT'] * df_coef.iloc[0]['MIT_ef'])
 
 
     df['DEV_EVE'] = df['Social']+df['Procurement']+df['Engineering']+df['Weather']+df['Management']
