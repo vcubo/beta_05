@@ -3,5 +3,4 @@ numpy
 pandas
 plotly
 scipy
-plotly
 hydralit_components
