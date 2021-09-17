@@ -46,7 +46,7 @@ df_part_index = ['Country','LoB','Site','Project Size', 'Contractor',
 
 if __name__ =="__main__":
 
-    st.sidebar.image('/vcubo_beta2.png',width=150)
+    st.sidebar.image('vcubo_beta2.png',width=150)
     st.sidebar.write('Data driven QSRA - v0.5 beta')
 
     # specify the menu definition we'll stick in the sidebar
@@ -110,7 +110,7 @@ def main():
     pages[page]()
 
 def home_page():
-    st.image('/homepage.png')
+    st.image('homepage.png')
     # ...
 
 def page_one():
