@@ -245,7 +245,7 @@ def page_three():
         with pr02b: st.plotly_chart(st.session_state.figures_p1_fit[1], use_container_width=True)
         with pr02a:
             st.subheader('Pre-mitigated project statistics')
-            st.write("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
+            st.write("With a lognormal fitting on the distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
             st.write('Distribution mean: '+str(np.round(pre_stat['means'][2]*100,2))+'%(fit)')
             st.write('Distribution median (P50): '+str(np.round(pre_stat['median'][2]*100,2))+'%(fit)')
             st.write('Average deviation percentage attributed to Risk events: ')
@@ -291,8 +291,8 @@ def page_four():
         figures_p1_fit = fit_distr(st.session_state.df_p1b, st.session_state.hist_xbin_size3)
         st.session_state.figures_p1_fit = figures_p1_fit
 
-
     st.session_state.df_p1m = st.session_state.df_p1b.copy(deep=True)
+
     if 'soc_mit' not in st.session_state: st.session_state.soc_mit = 0
     if 'proc_mit' not in st.session_state: st.session_state.proc_mit = 0
     if 'eng_mit' not in st.session_state: st.session_state.eng_mit = 0
@@ -301,7 +301,9 @@ def page_four():
 
     with risk_mitigate:
         st.subheader("Risks mitigation " )
+        #form = st.form('Mitigation sliders', clear_on_submit=True)
         pr05, pr05a, pr05b, pr05c,pr05c2, pr05d = st.columns((1,2,1,5,1,8))
+        #with form:
         with pr05a:
             st.slider('Social risks',0.0, 1.0, step=0.2, help="Adjust restimated impact of risks according to projects' conditions", key='soc_mit')
             st.slider('Procurement risks',0.0, 1.0, step=0.2, key='proc_mit')
@@ -309,28 +311,14 @@ def page_four():
             st.slider('Weather risks',0.0, 1.0, step=0.2, key='wea_mit')
             st.slider('Management risks',0.0, 1.0, step=0.2, key='mgm_mit')
             st.session_state.mitigation = [st.session_state.soc_mit, st.session_state.proc_mit, st.session_state.eng_mit, st.session_state.wea_mit, st.session_state.mgm_mit]
-            reset_mit = st.button('Reset')
+            #reset_mit = form.form_submit_button('Reset')
             #if reset_mit:
-            st.session_state.df_p1m = update_impact(st.session_state.df_p1m, st.session_state.df_p1b, st.session_state.mitigation, df_coef)
+        #st.write(pos_stat)
+        st.session_state.df_p1m = update_impact(st.session_state.df_p1m, st.session_state.df_p1b, st.session_state.mitigation, df_coef)
 
-    show_data = st.expander('DATA', expanded=False)
-    with show_data:
-        st.write(st.session_state.df_p1m[1])
-        st.write(st.session_state.df_p1b)
-        st.write(st.session_state.df_p1m[0])
-
-        #with pr05c:
-        #    st.subheader('Risk mitigation profile:')
-        #    st.write("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
-        #    st.write('Distribution mean: '+''+'(fit)')
-        #    st.write('Distribution median (P50): ')
-        #    st.write('Average deviation percentage attributed to Risk events: ')
-    show_charts = st.expander('CHARTS', expanded=True)
-    with show_charts:
         st.session_state.figures_p1m = const_figures(st.session_state.df_p1b, st.session_state.df_p1m[0], st.session_state.hist_xbin_size3, df_coef, df_part_index)
         st.session_state.figures_p1m_fit = fit_distr(st.session_state.df_p1m[0], st.session_state.hist_xbin_size3)
         st.session_state.pos_stat = df_stats(st.session_state.df_p1m[0])
-        #st.write(pos_stat)
         with pr05c:
             st.header('Post-mitigation probabilities ')
             st.subheader("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
@@ -343,29 +331,50 @@ def page_four():
         #                template="plotly_dark")
         #    #mitigated_plot = scatter_hist(compute_partials(st.session_state.df_p1m, df_part_index),risk_dict[x3d_sel][2])
         #    st.plotly_chart(polar_mit)
+
         with pr05d:
             st.plotly_chart(st.session_state.figures_p1m[2], use_container_width=True)
 
+
+    show_data = st.expander('DATA', expanded=False)
+    with show_data:
+        st.write('Socia_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['SOC']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        st.write('Procu_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['PROC']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        st.write('Engin_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['ENG']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        st.write('Weath_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['WEA']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        st.write('Manag_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['MGM']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        st.write('Pre-mitigation data', st.session_state.df_p1b)
+        st.write('Pos-mitigation data', st.session_state.df_p1m[0])
+        #with pr05c:
+        #    st.subheader('Risk mitigation profile:')
+        #    st.write("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
+        #    st.write('Distribution mean: '+''+'(fit)')
+        #    st.write('Distribution median (P50): ')
+        #    st.write('Average deviation percentage attributed to Risk events: ')
+
+    show_charts = st.expander('CHARTS', expanded=True)
+    x = np.linspace(0,1,int(1/st.session_state.hist_xbin_size3))
+
+    mit_dist_chart = st.session_state.figures_p1_fit[1]
+    with show_charts:
         pr08a, pr08b, pr08c = st.columns((4,1,4))
-        with pr08a: st.plotly_chart(st.session_state.figures_p1m[0], use_container_width=True)
-        with pr08c: st.plotly_chart(st.session_state.figures_p1m[1], use_container_width=True)
-        with pr08a:
-            st.subheader('Pre-mitigation charts:')
-            st.plotly_chart(st.session_state.figures_p1_fit[0], use_container_width=True)
+
         with pr08b:
-            x = np.linspace(0,1,int(1/st.session_state.hist_xbin_size3))
-            upd_mit_chart = st.button('Update mitigated fitting curve')
-            cln_mit_chart = st.button('Clean fitting curve')
-            mit_dist_chart = st.session_state.figures_p1_fit[1]
+            upd_mit_chart = st.button('Update ')
+            cln_mit_chart = st.button('Clean ')
             if upd_mit_chart:
-                st.session_state.figures_p1_fit[1].add_scatter(y = st.session_state.figures_p1m_fit[4], x = x)
+                mit_dist_chart.add_scatter(y = st.session_state.figures_p1m_fit[4], x = x)
             if cln_mit_chart:
                 mit_dist_chart = st.session_state.figures_p1_fit[1]
-        with pr08c:
+        with pr08a:
             st.subheader('Pre and post-mitigation fitting curves:')
             st.plotly_chart(mit_dist_chart, use_container_width=True)
+        with pr08c:
+            st.subheader('Pre-mitigation charts:')
+            st.plotly_chart(st.session_state.figures_p1_fit[0], use_container_width=True)
 
-
+        with pr08a: st.plotly_chart(st.session_state.figures_p1m[0], use_container_width=True)
+        with pr08c: st.plotly_chart(st.session_state.figures_p1m[1], use_container_width=True)
 
 def page_five():
     st.header("Project and portfolio Prescriptive analytics")
