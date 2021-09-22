@@ -10,7 +10,7 @@ import plotly.express as px
 import streamlit as st
 import hydralit_components as hc
 
-from utils import (partials, df_stats, filter_gen, const_figures, fit_distr, compute_partials, update_impact, scatter_hist)
+from utils import (partials, df_stats, filter_gen, const_figures, fit_distr, compute_partials, update_impact, scatter_hist, fit_probs)
 
 
 st.set_page_config(layout='wide',initial_sidebar_state='collapsed',)
@@ -35,14 +35,12 @@ risk_dict = {'Social':['SOC', 'SOC_MIT', 'SOC (NM)' ],
 ## Underlying distriburion (modeling & regression results)
 df_distrib = pd.DataFrame([['lognormal', 0.1, 0.3, -0.3]], columns = ['type', 'mu', 'sigma', 'shift'])
 ## Coefficients (modeling & regression results):
-df_coef = pd.DataFrame([[0.25,0.05,0.4,0.3,0.2,0.6,0.35,0.5,0.6,0.8,0.7]],
-                       columns = ['COUNTRY', 'LOB', 'SITE', 'PSIZE', 'CSIZE','SOC','PROC','ENG', 'WEA', 'MGM','MIT_ef'])
+
+df_coef = {'COUNTRY':0.25,'LOB':0.05,'SITE':0.4,'PSIZE':0.3,'CSIZE':0.2,'SOC':0.6,'PROC':0.35,'ENG':0.5,'WEA':0.6,'MGM':0.8,'MIT_ef':1}
+
 ## List of variables:
 df_part_index = ['Country','LoB','Site','Project Size', 'Contractor',
                                'Social', 'Procurement', 'Engineering', 'Weather', 'Management']
-
-
-
 
 if __name__ =="__main__":
 
@@ -145,19 +143,27 @@ def page_one():
 
 ## STATISTICS
     projecs_num = len(df_filter) #number of projects (filters aplied)
-    selection_statistics = df_stats(df_filter)
+    st.session_state.selection_statistics = df_stats(st.session_state.df_filter)
 
 ## GENERAL FIGURES
     figures_general = const_figures(df, st.session_state.df_filter, st.session_state.hist_xbin_size, df_coef, df_part_index)
     st.info('Showing statistics of '+str(len(df[filter_list]))+' projects out of '+str(len(df))+' projects in database')
     gen01, gen02 = st.columns(2)
     with gen01:
-        st.write("Total composed uncertainty and risk's impact distribution")
+        st.subheader("Historical deviation's distribution")
         st.plotly_chart(figures_general[0], use_container_width=True)
+        #STATISTICS
+        st.subheader("Main statistics of the "+str(len(st.session_state.df_filter))+" projects selected:")
+        st.subheader('Historical deviation median (P50): '+str(np.round(st.session_state.selection_statistics['median'][2]*100,1))+'%')
+        st.write('Decomposed uncertainty median: '+str(np.round((st.session_state.selection_statistics['factors'][0]-1)*100,1))+"%")
+        st.write("Decomposed risks' impact median:: "+str(np.round((st.session_state.selection_statistics['factors'][1]-1)*100,1))+"%")
+
+
     with gen02:
-        st.write("Decomposed uncertainty and risk's impact distribution")
+        st.subheader("Decomposed uncertainty and risks' impact distribution")
         st.plotly_chart(figures_general[1], use_container_width=True)
-    st.plotly_chart(figures_general[2], use_container_width=True)
+        st.subheader("Uncertainty and risks' impact median decomposition")
+        st.plotly_chart(figures_general[2], use_container_width=True)
 
 
 
@@ -177,18 +183,29 @@ def page_two():
 
 
     df_c1 = df_com(df)
-    figures_c001 = const_figures(df_c1, st.session_state.df_filter, st.session_state.hist_xbin_size, df_coef, df_part_index)
-    figures_c001[0].data[1].name = 'Total deviation -company'
-    figures_c001[1].data[0].name = 'Uncertainty -company'
-    figures_c001[1].data[1].name = 'Risk events impact -company'
+    company_statistics = df_stats(df_c1)
+    figures_c001 = const_figures(st.session_state.df_filter, df_c1, st.session_state.hist_xbin_size, df_coef, df_part_index)
+    figures_c001[0].data[1].name = 'Total deviation<br>(your company)'
+    figures_c001[1].data[0].name = 'Uncertainty'
+    figures_c001[1].data[1].name = 'Risk events impact'
 
     st.write(str(len(df_c1))+' projects registered')
     com01, com02 = st.columns(2)
     with com01:
+        st.subheader("Company's projects historical deviations distribution")
         st.plotly_chart(figures_c001[0], use_container_width=True)
+        #STATISTICS
+        st.subheader("Main statistics of your company's historical portfolio:")
+        st.write(str(len(df_c1))+" projects.")
+        st.subheader('Historical deviation median (P50): '+str(np.round(company_statistics['median'][2]*100,1))+'%')
+        st.write('Decomposed uncertainty median: '+str(np.round((company_statistics['factors'][0]-1)*100,1))+"%")
+        st.write("Decomposed risks' impact median:: "+str(np.round((company_statistics['factors'][1]-1)*100,1))+"%")
+
     with com02:
+        st.subheader("Decomposed uncertainty and risks' impact distribution")
         st.plotly_chart(figures_c001[1], use_container_width=True)
-    st.plotly_chart(figures_c001[2], use_container_width=True)
+        st.subheader("Uncertainty and risks' impact median decomposition")
+        st.plotly_chart(figures_c001[2], use_container_width=True)
 
 df2 = import_df(db_raw_path) # secondary dataframefor individual project operations
 
@@ -199,14 +216,15 @@ def page_three():
     st.header("Project setup")
     pr_setup = st.expander("EXPAND", expanded=True)
     with pr_setup:
+        st.write('Configure the characteristics of the project to be evaluated:', text_color='green')
         prf01, prf02, prf03, prf04, prf05, prf06 = st.columns(6)
         if 'select_country2' not in st.session_state: st.session_state.select_country2 = "All"
         if 'select_lob2' not in st.session_state: st.session_state.select_lob2 = "All"
         if 'select_site2' not in st.session_state: st.session_state.select_site2 = "All"
         if 'select_prsize2' not in st.session_state: st.session_state.select_prsize2 = "All"
         if 'select_csize2' not in st.session_state: st.session_state.select_csize2 = "All"
-        if 'hist_xbin_size2' not in st.session_state: st.session_state.hist_xbin_size2 = 0.05
-        if 'hist_xbin_size3' not in st.session_state: st.session_state.hist_xbin_size3 = 0.05
+        if 'hist_xbin_size2' not in st.session_state: st.session_state.hist_xbin_size2 = 0.02
+        if 'hist_xbin_size3' not in st.session_state: st.session_state.hist_xbin_size3 = 0.02
 
         with prf01: st.selectbox('Country',['All']+df2['COUNTRY'].unique().tolist(), key='select_country2')
         with prf02: st.selectbox('LoB',['All']+df2['LOB'].unique().tolist(), key='select_lob2')
@@ -217,45 +235,57 @@ def page_three():
             st.slider('General histograms bin width', 0.01, 0.1, key='hist_xbin_size2')
             st.slider('Fitting curve step length', 0.01, 0.1, key='hist_xbin_size3')
 
-        selection_pro = [st.session_state.select_country2, st.session_state.select_lob2, st.session_state.select_site2, st.session_state.select_prsize2, st.session_state.select_csize2] #list of filters applied
-        filter_list2 = filter_gen(selection_pro,df)
+        st.session_state.selection_pro = [st.session_state.select_country2, st.session_state.select_lob2, st.session_state.select_site2, st.session_state.select_prsize2, st.session_state.select_csize2] #list of filters applied
+        st.session_state.filter_list2 = filter_gen(st.session_state.selection_pro,df)
 
-
-        st.session_state.df_p1b = df2[filter_list2].copy(deep=True)
+        st.session_state.df_p1b = df2[st.session_state.filter_list2].copy(deep=True)
 
         ## EXAMPLE PROJECT - SIMULATION
         df_p1 = df2[(df2['COUNTRY']=='Argentina')&(df2['LOB']=='O&G - Upstream')&(df2['PR_SIZE']=='<20')&(df2['MC_SIZE']=='Small')&(df2['SITE']=='Harsh >50% of activity duration')]
 
         figures_p01 = const_figures(df_p1, st.session_state.df_p1b, st.session_state.hist_xbin_size2, df_coef, df_part_index)
-        figures_p1_fit = fit_distr(st.session_state.df_p1b, st.session_state.hist_xbin_size3)
-        st.session_state.figures_p1_fit = figures_p1_fit
-        pre_stat = df_stats(st.session_state.df_p1b)
-        st.session_state.pre_stat = pre_stat
+        st.session_state.figures_p1_fit = fit_distr(st.session_state.df_p1b, st.session_state.hist_xbin_size3)
+        st.session_state.pre_stat = df_stats(st.session_state.df_p1b)
 
-        st.subheader('Distribution of similar projects ('+str(len(st.session_state.df_p1b))+' projects):')
         pr01a, pr01b = st.columns(2)
-        with pr01a: st.plotly_chart(figures_p01[0], use_container_width=True)
-        with pr01b: st.plotly_chart(figures_p01[1], use_container_width=True)
+        #st.write(np.median(figures_p1_fit[5]), figures_p1_fit[5], figures_p1_fit[5].sum(), fit_median(figures_p1_fit[5]))
+        with pr01a:
+            st.subheader('Historical deviations distribution for ('+str(len(st.session_state.df_p1b))+' similar projects):')
+            st.plotly_chart(figures_p01[0], use_container_width=True)
+        with pr01b:
+            st.subheader("Decomposed uncertainty and risks' impact distribution")
+            st.plotly_chart(figures_p01[1], use_container_width=True)
 
     st.header("Project analysis")
-    pr_analysis = st.expander('EXPAND')
+    pr_analysis = st.expander('EXPAND', expanded=True)
     with pr_analysis:
         pr02a, pr02b = st.columns(2)
-        with pr02a: st.plotly_chart(st.session_state.figures_p1_fit[0], use_container_width=True)
-        with pr02b: st.plotly_chart(st.session_state.figures_p1_fit[1], use_container_width=True)
         with pr02a:
-            st.subheader('Pre-mitigated project statistics')
-            st.write("With a lognormal fitting on the distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
-            st.write('Distribution mean: '+str(np.round(pre_stat['means'][2]*100,2))+'%(fit)')
-            st.write('Distribution median (P50): '+str(np.round(pre_stat['median'][2]*100,2))+'%(fit)')
-            st.write('Average deviation percentage attributed to Risk events: ')
-        #    st.write(pre_stat)
+            st.subheader('Lognormal fitting on historical data')
+            st.plotly_chart(st.session_state.figures_p1_fit[0], use_container_width=True)
+        with pr02b:
+            st.subheader('Lognormal fitting pdf and cdf')
+            st.plotly_chart(st.session_state.figures_p1_fit[1], use_container_width=True)
+        with pr02a:
+            st.subheader("Statistics of historical data for projects characterization:")
+            st.write(str(len(st.session_state.df_p1b))+" projects.")
+            st.subheader('Historical deviation median (P50): '+str(np.round(st.session_state.pre_stat['median'][2]*100,1))+'%')
+            st.write('Decomposed uncertainty median: '+str(np.round((st.session_state.pre_stat['factors'][0]-1)*100,1))+"%")
+            st.write("Decomposed risks' impact median: "+str(np.round((st.session_state.pre_stat['factors'][1]-1)*100,1))+"%")
+            #st.write(figures_p1_fit[5])
+            st.subheader('Lognormal fitting P50: '+str(np.round(fit_probs(st.session_state.figures_p1_fit[5])[0]*100,1))+'%')
+            st.subheader('Lognormal fitting P80: '+str(np.round(fit_probs(st.session_state.figures_p1_fit[5])[1]*100,1))+'%')
+            #st.caption('Fitting partitions: '+str(np.round(fit_probs(figures_p1_fit[5])[2],1))+
+            #". Sum: "+str(np.round(fit_probs(figures_p1_fit[5])[3],1))+
+            #". Totals: "+str(np.round(fit_probs(figures_p1_fit[5])[4],1)))
+            st.write('Approx. fitting uncertainty median: '+str(np.round((st.session_state.pre_stat['factors'][0]-1)*100,0))+"%")
+            st.write("Approx. fitting risks' impact median: "+str(np.round((st.session_state.pre_stat['factors'][1]-1)*100,0))+"%")
         with pr02b:
             st.plotly_chart(figures_p01[2])
 
 
-    st.header("Project's variables correlations")
-    var_corr = st.expander('EXPAND')
+    st.header("Project expected deviation and variables correlations")
+    var_corr = st.expander('EXPAND', expanded=True)
     with var_corr:
         st.caption("Estimated total risks' impact vs risk type impact" )
         pr03a, pr03b, pr03c = st.columns((1,2,2))
@@ -314,17 +344,17 @@ def page_four():
             #reset_mit = form.form_submit_button('Reset')
             #if reset_mit:
         #st.write(pos_stat)
-        st.session_state.df_p1m = update_impact(st.session_state.df_p1m, st.session_state.df_p1b, st.session_state.mitigation, df_coef)
+        st.session_state.df_p1m = update_impact(st.session_state.df_p1m, st.session_state.df_p1b, st.session_state.mitigation, df_coef)[0]
 
-        st.session_state.figures_p1m = const_figures(st.session_state.df_p1b, st.session_state.df_p1m[0], st.session_state.hist_xbin_size3, df_coef, df_part_index)
-        st.session_state.figures_p1m_fit = fit_distr(st.session_state.df_p1m[0], st.session_state.hist_xbin_size3)
-        st.session_state.pos_stat = df_stats(st.session_state.df_p1m[0])
+        st.session_state.figures_p1m = const_figures(st.session_state.df_p1b, st.session_state.df_p1m, st.session_state.hist_xbin_size3, df_coef, df_part_index)
+        st.session_state.figures_p1m_fit = fit_distr(st.session_state.df_p1m, st.session_state.hist_xbin_size3)
+        st.session_state.pos_stat = df_stats(st.session_state.df_p1m)
         with pr05c:
             st.header('Post-mitigation probabilities ')
             st.subheader("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
-            st.subheader('Distribution mean: '+str(np.round(st.session_state.pos_stat['means'][2]*100,2))+'%(fit) vs '+str(np.round(st.session_state.pre_stat['means'][2]*100,2))+'%(fit)')
-            st.subheader('Distribution median (P50): '+str(np.round(st.session_state.pos_stat['median'][2]*100,1))+'%(fit) vs '+str(np.round(st.session_state.pre_stat['median'][2]*100,2))+'%(fit)')
-            st.write('Average deviation percentage attributed to Risk events: ')
+            #st.subheader('Distribution mean: '+str(np.round(st.session_state.pos_stat['means'][2]*100,2))+'%(fit) vs '+str(np.round(st.session_state.pre_stat['means'][2]*100,1))+'%(fit)')
+            st.subheader('Distribution median (P50): '+str(np.round(st.session_state.pos_stat['median'][2]*100,1))+'% vs '+str(np.round(st.session_state.pre_stat['median'][2]*100,1))+'%')
+            st.write(st.session_state.mitigation)
         #    df_polar =pd.DataFrame.from_dict({'Risk type':['Social', 'Procurement', 'Engineering', 'Weather', 'Management'], '% Mitigation':mitigation })
         #    polar_mit = px.line_polar(df_polar, r="% Mitigation", theta="Risk type", line_close=True, #color="% Mitigation",
         #                color_discrete_sequence=px.colors.sequential.Rainbow,
@@ -335,16 +365,15 @@ def page_four():
         with pr05d:
             st.plotly_chart(st.session_state.figures_p1m[2], use_container_width=True)
 
-
     show_data = st.expander('DATA', expanded=False)
     with show_data:
-        st.write('Socia_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['SOC']==0])/len(st.session_state.df_p1b))*100,2))+'%')
-        st.write('Procu_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['PROC']==0])/len(st.session_state.df_p1b))*100,2))+'%')
-        st.write('Engin_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['ENG']==0])/len(st.session_state.df_p1b))*100,2))+'%')
-        st.write('Weath_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['WEA']==0])/len(st.session_state.df_p1b))*100,2))+'%')
-        st.write('Manag_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['MGM']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        #st.write('Socia_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['SOC']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        #st.write('Procu_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['PROC']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        #st.write('Engin_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['ENG']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        #st.write('Weath_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['WEA']==0])/len(st.session_state.df_p1b))*100,2))+'%')
+        #st.write('Manag_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['MGM']==0])/len(st.session_state.df_p1b))*100,2))+'%')
         st.write('Pre-mitigation data', st.session_state.df_p1b)
-        st.write('Pos-mitigation data', st.session_state.df_p1m[0])
+        st.write('Pos-mitigation data', st.session_state.df_p1m)
         #with pr05c:
         #    st.subheader('Risk mitigation profile:')
         #    st.write("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
