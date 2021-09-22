@@ -354,7 +354,7 @@ def page_four():
             st.subheader("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
             #st.subheader('Distribution mean: '+str(np.round(st.session_state.pos_stat['means'][2]*100,2))+'%(fit) vs '+str(np.round(st.session_state.pre_stat['means'][2]*100,1))+'%(fit)')
             st.subheader('Distribution median (P50): '+str(np.round(st.session_state.pos_stat['median'][2]*100,1))+'% vs '+str(np.round(st.session_state.pre_stat['median'][2]*100,1))+'%')
-            st.write(st.session_state.mitigation)
+            #st.write(st.session_state.mitigation)
         #    df_polar =pd.DataFrame.from_dict({'Risk type':['Social', 'Procurement', 'Engineering', 'Weather', 'Management'], '% Mitigation':mitigation })
         #    polar_mit = px.line_polar(df_polar, r="% Mitigation", theta="Risk type", line_close=True, #color="% Mitigation",
         #                color_discrete_sequence=px.colors.sequential.Rainbow,
