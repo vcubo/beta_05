@@ -47,7 +47,7 @@ sta.start_tracking()
 if __name__ =="__main__":
 
     with st.sidebar:
-        st.image('vcubo_beta2.png',width=100)
+        st.image('vcubo_beta3.png',width=200)
         st.caption('Data driven QSRA')
         st.caption('v0.5 beta')
 
