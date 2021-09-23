@@ -46,15 +46,17 @@ df_part_index = ['Country','LoB','Site','Project Size', 'Contractor',
 sta.start_tracking()
 if __name__ =="__main__":
 
-    st.sidebar.image('vcubo_beta2.png',width=150)
-    st.sidebar.write('Data driven QSRA - v0.5 beta')
+    with st.sidebar:
+        st.image('vcubo_beta2.png',width=100)
+        st.caption('Data driven QSRA')
+        st.caption('v0.5 beta')
 
     # specify the menu definition we'll stick in the sidebar
     side_menu_data = [
         {'id':'First page', 'icon': "bi bi-collection", 'label':"Explore database",'ttip':"Quick product intro"},
         {'id':'Second page', 'icon': "bi bi-file-bar-graph", 'label':"My Company",'ttip':"Quick product intro"},
-        {'id':'Third page', 'icon': "bi bi-bar-chart-fill", 'label':"Project QRA",'ttip':"Quick product intro"},
-        {'id':'Fourth page', 'icon': "bi bi-sliders", 'label':"QRA mitigation",'ttip':"Quick product intro"},
+        {'id':'Third page', 'icon': "bi bi-bar-chart-fill", 'label':"QRA setup",'ttip':"Quick product intro"},
+        {'id':'Fourth page', 'icon': "bi bi-sliders", 'label':"QRA tool",'ttip':"Quick product intro"},
         {'id':'Fifth page', 'icon': "fas fa-brain", 'label':"Prescriptive AI",'ttip':"Quick product intro"},
     ]
 
@@ -62,8 +64,8 @@ if __name__ =="__main__":
     menu_data = [
         {'id':'First page', 'icon': "bi bi-collection", 'label':"Explore database",'ttip':"Quick product intro"},
         {'id':'Second page', 'icon': "bi bi-file-bar-graph", 'label':"My Company",'ttip':"Quick product intro"},
-        {'id':'Third page', 'icon': "bi bi-bar-chart-fill", 'label':"Project QRA",'ttip':"Quick product intro"},
-        {'id':'Fourth page', 'icon': "bi bi-sliders", 'label':"QRA mitigation",'ttip':"Quick product intro"},
+        {'id':'Third page', 'icon': "bi bi-bar-chart-fill", 'label':"QRA setup",'ttip':"Quick product intro"},
+        {'id':'Fourth page', 'icon': "bi bi-sliders", 'label':"QRA tool",'ttip':"Quick product intro"},
         {'id':'Fifth page', 'icon': "fas fa-brain", 'label':"Prescriptive AI",'ttip':"Quick product intro"},
 
     ]
@@ -110,7 +112,33 @@ def main():
     pages[page]()
 
 def home_page():
-    st.image('homepage.png')
+    st.header("")
+    hp01, hp02, hp03 = st.columns((5,2,20))
+    with hp01: st.image('vcubo_beta3.png',width=300)
+    with hp03:
+        st.caption("")
+        st.caption("")
+        st.caption("")
+        st.caption("")
+        st.write('Unbiased quantitative risk analysis based on real data.')
+        st.write("v0.5.")
+        st.markdown('[Visit our wesite](https://vcubo.github.io)')
+        #st.markdown('### Increase projects certainty in planning and execution stages with our models and tools.')
+    st.header("")
+    quick_guide = st.expander("QUICK GUIDE", expanded=True)
+    with quick_guide:
+        hp03, hp04 = st.columns((6,4))
+        with hp03:
+            st.markdown('1. __Explore database__: Filter and visulize statistics of our database.')
+            st.markdown('2. __My company__:  Visulize statistics of your company.')
+            st.markdown('3. __QRA setup__: Set up characteristics of the project to evaluate.')
+            st.markdown('4. __QRA tool__: Define risk mitigation factors and get post-mitigation probabilities.')
+            st.markdown('4. *__Prescriptive AI__: under development.*')
+
+
+            #st.markdown('### Increase projects certainty in planning and execution stages with our models and tools.')
+
+    #st.image('homepage.png')
     # ...
 
 def page_one():
@@ -188,10 +216,11 @@ def page_two():
     company_statistics = df_stats(df_c1)
     figures_c001 = const_figures(st.session_state.df_filter, df_c1, st.session_state.hist_xbin_size, df_coef, df_part_index)
     figures_c001[0].data[1].name = 'Total deviation<br>(your company)'
+    figures_c001[0].data[0].name = 'Total deviation<br>(filtered DB)'
     figures_c001[1].data[0].name = 'Uncertainty'
     figures_c001[1].data[1].name = 'Risk events impact'
 
-    st.write(str(len(df_c1))+' projects registered')
+    st.write(str(len(df_c1))+' projects of your company are registered in our DB')
     com01, com02 = st.columns(2)
     with com01:
         st.subheader("Company's projects historical deviations distribution")
@@ -216,9 +245,10 @@ def page_three():
     # Initial datafeame upload:
     # Project Characterizarion:
     st.header("Project setup")
+    st.subheader("Configure the project to be evaluated and explore pre-mitigations statistics")
     pr_setup = st.expander("EXPAND", expanded=True)
     with pr_setup:
-        st.write('Configure the characteristics of the project to be evaluated:', text_color='green')
+        #st.write('Configure the characteristics of the project to be evaluated:')
         prf01, prf02, prf03, prf04, prf05, prf06 = st.columns(6)
         if 'select_country2' not in st.session_state: st.session_state.select_country2 = "All"
         if 'select_lob2' not in st.session_state: st.session_state.select_lob2 = "All"
@@ -258,7 +288,7 @@ def page_three():
             st.subheader("Decomposed uncertainty and risks' impact distribution")
             st.plotly_chart(figures_p01[1], use_container_width=True)
 
-    st.header("Project analysis")
+    st.header("Pre-mitigation statistics")
     pr_analysis = st.expander('EXPAND', expanded=True)
     with pr_analysis:
         pr02a, pr02b = st.columns(2)
@@ -269,7 +299,7 @@ def page_three():
             st.subheader('Lognormal fitting pdf and cdf')
             st.plotly_chart(st.session_state.figures_p1_fit[1], use_container_width=True)
         with pr02a:
-            st.subheader("Statistics of historical data for projects characterization:")
+            st.subheader("Statistics for similar projects in our DB:")
             st.write(str(len(st.session_state.df_p1b))+" projects.")
             st.subheader('Historical deviation median (P50): '+str(np.round(st.session_state.pre_stat['median'][2]*100,1))+'%')
             st.write('Decomposed uncertainty median: '+str(np.round((st.session_state.pre_stat['factors'][0]-1)*100,1))+"%")
@@ -283,6 +313,7 @@ def page_three():
             st.write('Approx. fitting uncertainty median: '+str(np.round((st.session_state.pre_stat['factors'][0]-1)*100,0))+"%")
             st.write("Approx. fitting risks' impact median: "+str(np.round((st.session_state.pre_stat['factors'][1]-1)*100,0))+"%")
         with pr02b:
+            st.subheader("Uncertainty and risks' impact median decomposition")
             st.plotly_chart(figures_p01[2])
 
 
@@ -308,8 +339,8 @@ def page_three():
 
 def page_four():
     st.header("Project - Predictive analytics")
-    st.subheader("Analize risk mitigation impact and conduct a high-level QSRA")
-    risk_mitigate = st.expander('MITIGATE', expanded=True)
+    st.subheader("Analize risk mitigation and conduct an agile Quantitative Schedule Risk Analysis session")
+    risk_mitigate = st.expander('MITIGATION ANALYSIS', expanded=True)
 
     # Generates df and figures in mitigation page in case a project wasn't set in the previus step
     if 'hist_xbin_size2' not in st.session_state:
@@ -332,12 +363,12 @@ def page_four():
     if 'mgm_mit' not in st.session_state: st.session_state.mgm_mit = 0
 
     with risk_mitigate:
-        st.subheader("Risks mitigation " )
+        st.subheader("Risks mitigation factors" )
         #form = st.form('Mitigation sliders', clear_on_submit=True)
-        pr05, pr05a, pr05b, pr05c,pr05c2, pr05d = st.columns((1,2,1,5,1,8))
+        pr05, pr05a, pr05b, pr05c,pr05c2, pr05d = st.columns((1,5,1,8,1,9))
         #with form:
         with pr05a:
-            st.slider('Social risks',0.0, 1.0, step=0.1, help="Adjust restimated impact of risks according to projects' conditions", key='soc_mit')
+            st.slider('Social risks',0.0, 1.0, step=0.1, help="Adjust mitigation factor for the risk types", key='soc_mit')
             st.slider('Procurement risks',0.0, 1.0, step=0.1, key='proc_mit')
             st.slider('Engineering risks',0.0, 1.0, step=0.1, key='eng_mit')
             st.slider('Weather risks',0.0, 1.0, step=0.1, key='wea_mit')
@@ -369,6 +400,32 @@ def page_four():
         with pr05d:
             st.plotly_chart(st.session_state.figures_p1m[2], use_container_width=True)
 
+
+
+    show_charts = st.expander('PROBABILITY DISTRIBUTIONS', expanded=True)
+    x = np.linspace(0,1,int(1/st.session_state.hist_xbin_size3))
+
+    mit_dist_chart = st.session_state.figures_p1_fit[1]
+    with show_charts:
+        pr08a, pr08b, pr08c = st.columns((4,1,4))
+
+        with pr08b:
+            upd_mit_chart = st.button('Add pdf', help="Add post-mitigation probability distribution",)
+            #cln_mit_chart = st.button('Clean ')
+            if upd_mit_chart:
+                mit_dist_chart.add_scatter(y = st.session_state.figures_p1m_fit[4], x = x)
+            #if cln_mit_chart:
+            #    mit_dist_chart = st.session_state.figures_p1_fit[1]
+        with pr08a:
+            st.subheader('Pre and post-mitigation fitting curves:')
+            st.plotly_chart(mit_dist_chart, use_container_width=True)
+        with pr08c:
+            st.subheader('Pre-mitigation charts:')
+            st.plotly_chart(st.session_state.figures_p1_fit[0], use_container_width=True)
+
+        with pr08a: st.plotly_chart(st.session_state.figures_p1m[0], use_container_width=True)
+        with pr08c: st.plotly_chart(st.session_state.figures_p1m[1], use_container_width=True)
+
     show_data = st.expander('DATA', expanded=False)
     with show_data:
         #st.write('Socia_ risk events probability: '+str(np.round((1-len(st.session_state.df_p1b[st.session_state.df_p1b['SOC']==0])/len(st.session_state.df_p1b))*100,2))+'%')
@@ -384,33 +441,8 @@ def page_four():
         #    st.write('Distribution mean: '+''+'(fit)')
         #    st.write('Distribution median (P50): ')
         #    st.write('Average deviation percentage attributed to Risk events: ')
-
-    show_charts = st.expander('CHARTS', expanded=True)
-    x = np.linspace(0,1,int(1/st.session_state.hist_xbin_size3))
-
-    mit_dist_chart = st.session_state.figures_p1_fit[1]
-    with show_charts:
-        pr08a, pr08b, pr08c = st.columns((4,1,4))
-
-        with pr08b:
-            upd_mit_chart = st.button('Update ')
-            cln_mit_chart = st.button('Clean ')
-            if upd_mit_chart:
-                mit_dist_chart.add_scatter(y = st.session_state.figures_p1m_fit[4], x = x)
-            if cln_mit_chart:
-                mit_dist_chart = st.session_state.figures_p1_fit[1]
-        with pr08a:
-            st.subheader('Pre and post-mitigation fitting curves:')
-            st.plotly_chart(mit_dist_chart, use_container_width=True)
-        with pr08c:
-            st.subheader('Pre-mitigation charts:')
-            st.plotly_chart(st.session_state.figures_p1_fit[0], use_container_width=True)
-
-        with pr08a: st.plotly_chart(st.session_state.figures_p1m[0], use_container_width=True)
-        with pr08c: st.plotly_chart(st.session_state.figures_p1m[1], use_container_width=True)
-
 def page_five():
-    st.header("Project and portfolio Prescriptive analytics")
+    st.header("Project and portfolio prescriptive analytics")
     st.subheader("Optimize risk mitigation with the help of AI")
 
 if __name__ == "__main__":
