@@ -21,7 +21,7 @@ def import_df(path):
     df = pd.read_csv(path) #Important: set raw URL
     return df
 
-db_raw_path = 'https://raw.githubusercontent.com/vcubo/beta_0.1/main/VCDB_210828v0.csv'
+db_raw_path = 'https://raw.githubusercontent.com/vcubo/beta_0.1/main/VCDB_210920v3.csv'
 df = import_df(db_raw_path) # main dataframe for general use
 
 risk_dict = {'Social':['SOC', 'SOC_MIT', 'SOC (NM)' ],
@@ -36,7 +36,7 @@ risk_dict = {'Social':['SOC', 'SOC_MIT', 'SOC (NM)' ],
 df_distrib = pd.DataFrame([['lognormal', 0.1, 0.3, -0.3]], columns = ['type', 'mu', 'sigma', 'shift'])
 ## Coefficients (modeling & regression results):
 
-df_coef = {'COUNTRY':0.25,'LOB':0.05,'SITE':0.4,'PSIZE':0.3,'CSIZE':0.2,'SOC':0.6,'PROC':0.35,'ENG':0.5,'WEA':0.6,'MGM':0.8,'MIT_ef':1}
+df_coef = {'COUNTRY':0.25,'LOB':0.05,'SITE':0.4,'PSIZE':0.3,'CSIZE':0.2,'SOC':0.6,'PROC':0.35,'ENG':0.5,'WEA':0.6,'MGM':1,'MIT_ef':1}
 
 ## List of variables:
 df_part_index = ['Country','LoB','Site','Project Size', 'Contractor',
@@ -250,7 +250,7 @@ def page_three():
         pr01a, pr01b = st.columns(2)
         #st.write(np.median(figures_p1_fit[5]), figures_p1_fit[5], figures_p1_fit[5].sum(), fit_median(figures_p1_fit[5]))
         with pr01a:
-            st.subheader('Historical deviations distribution for ('+str(len(st.session_state.df_p1b))+' similar projects):')
+            st.subheader('Historical deviations distribution of '+str(len(st.session_state.df_p1b))+' similar projects in DB:')
             st.plotly_chart(figures_p01[0], use_container_width=True)
         with pr01b:
             st.subheader("Decomposed uncertainty and risks' impact distribution")
@@ -354,6 +354,8 @@ def page_four():
             st.subheader("With a lognormal fit over delays' distribution of the "+str(len(st.session_state.df_p1b))+" projects selected.")
             #st.subheader('Distribution mean: '+str(np.round(st.session_state.pos_stat['means'][2]*100,2))+'%(fit) vs '+str(np.round(st.session_state.pre_stat['means'][2]*100,1))+'%(fit)')
             st.subheader('Distribution median (P50): '+str(np.round(st.session_state.pos_stat['median'][2]*100,1))+'% vs '+str(np.round(st.session_state.pre_stat['median'][2]*100,1))+'%')
+            st.write('Decomposed uncertainty median: '+str(np.round((st.session_state.pos_stat['factors'][0]-1)*100,1))+"%")
+            st.write("Decomposed risks' impact median: "+str(np.round((st.session_state.pos_stat['factors'][1]-1)*100,1))+"%")
             #st.write(st.session_state.mitigation)
         #    df_polar =pd.DataFrame.from_dict({'Risk type':['Social', 'Procurement', 'Engineering', 'Weather', 'Management'], '% Mitigation':mitigation })
         #    polar_mit = px.line_polar(df_polar, r="% Mitigation", theta="Risk type", line_close=True, #color="% Mitigation",
