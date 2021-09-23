@@ -245,7 +245,7 @@ def page_three():
     # Initial datafeame upload:
     # Project Characterizarion:
     st.header("Project setup")
-    st.subheader("Configure the project to be evaluated and explore pre-mitigations statistics")
+    st.subheader("Configure the project to be evaluated and explore pre-mitigation statistics")
     pr_setup = st.expander("EXPAND", expanded=True)
     with pr_setup:
         #st.write('Configure the characteristics of the project to be evaluated:')
