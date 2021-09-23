@@ -110,7 +110,7 @@ def const_figures(df_base,df_comp, hist_xbins_size, df_coef, df_part_index):
                                  )
     ## DECOMPOSED UNCERTAINTY/RISK IMPACTS DEVIATION MEDIANS
     dev_comp_bar = px.bar(partials_df_comp,x='Factor',y='Impact', color = 'Variable').update_layout(#{'paper_bgcolor': 'whitesmoke'},
-                                  yaxis=dict(tickformat=".0%"),
+                                  yaxis=dict(tickformat=".1%"),
                                   #height=130,
                                   #paper_bgcolor='whitesmoke',
                                   #title=dict(text="Uncertainty and risk's decomposition (medians)", x=0),
