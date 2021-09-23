@@ -335,11 +335,11 @@ def page_four():
         pr05, pr05a, pr05b, pr05c,pr05c2, pr05d = st.columns((1,2,1,5,1,8))
         #with form:
         with pr05a:
-            st.slider('Social risks',0.0, 1.0, step=0.2, help="Adjust restimated impact of risks according to projects' conditions", key='soc_mit')
-            st.slider('Procurement risks',0.0, 1.0, step=0.2, key='proc_mit')
-            st.slider('Engineering risks',0.0, 1.0, step=0.2, key='eng_mit')
-            st.slider('Weather risks',0.0, 1.0, step=0.2, key='wea_mit')
-            st.slider('Management risks',0.0, 1.0, step=0.2, key='mgm_mit')
+            st.slider('Social risks',0.0, 1.0, step=0.1, help="Adjust restimated impact of risks according to projects' conditions", key='soc_mit')
+            st.slider('Procurement risks',0.0, 1.0, step=0.1, key='proc_mit')
+            st.slider('Engineering risks',0.0, 1.0, step=0.1, key='eng_mit')
+            st.slider('Weather risks',0.0, 1.0, step=0.1, key='wea_mit')
+            st.slider('Management risks',0.0, 1.0, step=0.1, key='mgm_mit')
             st.session_state.mitigation = [st.session_state.soc_mit, st.session_state.proc_mit, st.session_state.eng_mit, st.session_state.wea_mit, st.session_state.mgm_mit]
             #reset_mit = form.form_submit_button('Reset')
             #if reset_mit:
