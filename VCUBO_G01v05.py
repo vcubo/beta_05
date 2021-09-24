@@ -22,7 +22,7 @@ def import_df(path):
     df = pd.read_csv(path) #Important: set raw URL
     return df
 
-db_raw_path = 'https://raw.githubusercontent.com/vcubo/beta_0.1/main/VCDB_210920v3.csv'
+db_raw_path = 'https://raw.githubusercontent.com/vcubo/beta_0.1/main/VCDB_210924v1.csv'
 df = import_df(db_raw_path) # main dataframe for general use
 
 risk_dict = {'Social':['SOC', 'SOC_MIT', 'SOC (NM)' ],
