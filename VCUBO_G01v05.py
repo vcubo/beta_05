@@ -180,13 +180,13 @@ def page_one():
     st.info('Showing statistics of '+str(len(df[filter_list]))+' projects out of '+str(len(df))+' projects in database')
     gen01, gen02 = st.columns(2)
     with gen01:
-        st.subheader("Historical deviation's distribution")
+        st.subheader("Historical deviations distribution")
         st.plotly_chart(figures_general[0], use_container_width=True)
         #STATISTICS
         st.subheader("Main statistics of the "+str(len(st.session_state.df_filter))+" projects selected:")
         st.subheader('Historical deviation median (P50): '+str(np.round(st.session_state.selection_statistics['median'][2]*100,1))+'%')
         st.write('Decomposed uncertainty median: '+str(np.round((st.session_state.selection_statistics['factors'][0]-1)*100,1))+"%")
-        st.write("Decomposed risks' impact median:: "+str(np.round((st.session_state.selection_statistics['factors'][1]-1)*100,1))+"%")
+        st.write("Decomposed risks' impact median: "+str(np.round((st.session_state.selection_statistics['factors'][1]-1)*100,1))+"%")
 
 
     with gen02:
@@ -245,7 +245,7 @@ def page_three():
     # Initial datafeame upload:
     # Project Characterizarion:
     st.header("Project setup")
-    st.subheader("Configure the project to be evaluated and explore pre-mitigation statistics")
+    st.subheader("Define parameters of the project to be evaluated and explore pre-mitigation statistics")
     pr_setup = st.expander("EXPAND", expanded=True)
     with pr_setup:
         #st.write('Configure the characteristics of the project to be evaluated:')
@@ -282,7 +282,7 @@ def page_three():
         pr01a, pr01b = st.columns(2)
         #st.write(np.median(figures_p1_fit[5]), figures_p1_fit[5], figures_p1_fit[5].sum(), fit_median(figures_p1_fit[5]))
         with pr01a:
-            st.subheader('Historical deviations distribution of '+str(len(st.session_state.df_p1b))+' similar projects in DB:')
+            st.subheader('Historical deviation distribution of '+str(len(st.session_state.df_p1b))+' filtered projects in DB:')
             st.plotly_chart(figures_p01[0], use_container_width=True)
         with pr01b:
             st.subheader("Decomposed uncertainty and risks' impact distribution")
@@ -314,7 +314,7 @@ def page_three():
             st.write("Approx. fitting risks' impact median: "+str(np.round((st.session_state.pre_stat['factors'][1]-1)*100,0))+"%")
         with pr02b:
             st.subheader("Uncertainty and risks' impact median decomposition")
-            st.plotly_chart(figures_p01[2])
+            st.plotly_chart(figures_p01[2], use_container_width=True)
 
 
     st.header("Project expected deviation and variables correlations")
@@ -444,6 +444,7 @@ def page_four():
 def page_five():
     st.header("Project and portfolio prescriptive analytics")
     st.subheader("Optimize risk mitigation with the help of AI")
+    st.markdown("### [Contact us to shcedule a call](https://vcubo.co/contact)")
 
 if __name__ == "__main__":
     main()
