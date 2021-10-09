@@ -142,37 +142,43 @@ def home_page():
     # ...
 
 def page_one():
-    st.subheader("Projects general database")
+    st.subheader("General database")
     #gen_expand = st.expander('. . . ', expanded=False)
     #if exp_gen:
     #    gen_expand = True
     #with gen_expand:
 ## GENERAL FILTERS ##
-    if 'select_country' not in st.session_state: st.session_state.select_country = "All"
-    if 'select_lob' not in st.session_state: st.session_state.select_lob = "All"
-    if 'select_site' not in st.session_state: st.session_state.select_site = "All"
-    if 'select_prsize' not in st.session_state: st.session_state.select_prsize = "All"
-    if 'select_csize' not in st.session_state: st.session_state.select_csize = "All"
-    if 'hist_xbin_size' not in st.session_state: st.session_state.hist_xbin_size = 0.05
 
-    gf01, gf02, gf03, gf04, gf05, gf06 = st.columns(6)
-    with gf01: st.selectbox('Country',['All']+df['COUNTRY'].unique().tolist(), key='select_country')
-    with gf02: st.selectbox('LoB',['All']+df['LOB'].unique().tolist(), key='select_lob')
-    with gf03: st.selectbox('Site conditions',['All']+df['SITE'].unique().tolist(), key='select_site')
-    with gf04: st.selectbox('Project size',['All']+df['PR_SIZE'].unique().tolist(), key='select_prsize')
-    with gf05: st.selectbox('Contractor size',['All']+df['MC_SIZE'].unique().tolist(), key='select_csize')
-    with gf06: st.slider('General histograms bin width', 0.01, 0.1, key='hist_xbin_size')
+    with st.form('filter_gen'):
+        if 'select_country' not in st.session_state: st.session_state.select_country = "All"
+        if 'select_lob' not in st.session_state: st.session_state.select_lob = "All"
+        if 'select_site' not in st.session_state: st.session_state.select_site = "All"
+        if 'select_prsize' not in st.session_state: st.session_state.select_prsize = "All"
+        if 'select_csize' not in st.session_state: st.session_state.select_csize = "All"
+        if 'hist_xbin_size' not in st.session_state: st.session_state.hist_xbin_size = 0.05
+        selection_gen = [st.session_state.select_country, st.session_state.select_lob, st.session_state.select_site, st.session_state.select_prsize, st.session_state.select_csize] #list of filters applied
+        filter_list = filter_gen(selection_gen,df)
+        st.session_state.df_filter = df[filter_list]
 
-    selection_gen = [st.session_state.select_country, st.session_state.select_lob, st.session_state.select_site, st.session_state.select_prsize, st.session_state.select_csize] #list of filters applied
-    filter_list = filter_gen(selection_gen,df)
-    df_filter = df[filter_list]
-    st.session_state.df_filter = df_filter
+        gf01, gf02, gf03, gf04, gf05, gf06 = st.columns(6)
+        with gf01: st.selectbox('Country',['All']+df['COUNTRY'].unique().tolist(), key='select_country')
+        with gf02: st.selectbox('LoB',['All']+df['LOB'].unique().tolist(), key='select_lob')
+        with gf03: st.selectbox('Site conditions',['All']+df['SITE'].unique().tolist(), key='select_site')
+        with gf04: st.selectbox('Project size',['All']+df['PR_SIZE'].unique().tolist(), key='select_prsize')
+        with gf05: st.selectbox('Contractor size',['All']+df['MC_SIZE'].unique().tolist(), key='select_csize')
+        with gf06: st.slider('General histograms bin width', 0.01, 0.1, key='hist_xbin_size')
+
+        filter_projects = st.form_submit_button('APPLY FILTERS')
+        if filter_projects:
+            selection_gen = [st.session_state.select_country, st.session_state.select_lob, st.session_state.select_site, st.session_state.select_prsize, st.session_state.select_csize] #list of filters applied
+            filter_list = filter_gen(selection_gen,df)
+            st.session_state.df_filter = df[filter_list]
     #if 'hist_xbin_size1' not in st.session_state:
     #    st.session_state.hist_xbins_size1 = hist_xbins_size
 
 
 ## STATISTICS
-    projecs_num = len(df_filter) #number of projects (filters aplied)
+    projecs_num = len(st.session_state.df_filter) #number of projects (filters aplied)
     st.session_state.selection_statistics = df_stats(st.session_state.df_filter)
 
 ## GENERAL FIGURES
@@ -246,8 +252,7 @@ def page_three():
     # Project Characterizarion:
     st.header("Project setup")
     st.subheader("Define parameters of the project to be evaluated and explore pre-mitigation statistics")
-    pr_setup = st.expander("EXPAND", expanded=True)
-    with pr_setup:
+    with st.form('project_setup'):
         #st.write('Configure the characteristics of the project to be evaluated:')
         prf01, prf02, prf03, prf04, prf05, prf06 = st.columns(6)
         if 'select_country2' not in st.session_state: st.session_state.select_country2 = "All"
@@ -256,7 +261,11 @@ def page_three():
         if 'select_prsize2' not in st.session_state: st.session_state.select_prsize2 = "All"
         if 'select_csize2' not in st.session_state: st.session_state.select_csize2 = "All"
         if 'hist_xbin_size2' not in st.session_state: st.session_state.hist_xbin_size2 = 0.02
-        if 'hist_xbin_size3' not in st.session_state: st.session_state.hist_xbin_size3 = 0.02
+
+
+        st.session_state.selection_pro = [st.session_state.select_country2, st.session_state.select_lob2, st.session_state.select_site2, st.session_state.select_prsize2, st.session_state.select_csize2] #list of filters applied
+        st.session_state.filter_list2 = filter_gen(st.session_state.selection_pro,df)
+        st.session_state.df_p1b = df2[st.session_state.filter_list2].copy(deep=True)
 
         with prf01: st.selectbox('Country',['All']+df2['COUNTRY'].unique().tolist(), key='select_country2')
         with prf02: st.selectbox('LoB',['All']+df2['LOB'].unique().tolist(), key='select_lob2')
@@ -265,18 +274,23 @@ def page_three():
         with prf05: st.selectbox('Contractor size',['All']+df2['MC_SIZE'].unique().tolist(), key='select_csize2')
         with prf06:
             st.slider('General histograms bin width', 0.01, 0.1, key='hist_xbin_size2')
-            st.slider('Fitting curve step length', 0.01, 0.1, key='hist_xbin_size3')
 
-        st.session_state.selection_pro = [st.session_state.select_country2, st.session_state.select_lob2, st.session_state.select_site2, st.session_state.select_prsize2, st.session_state.select_csize2] #list of filters applied
-        st.session_state.filter_list2 = filter_gen(st.session_state.selection_pro,df)
 
-        st.session_state.df_p1b = df2[st.session_state.filter_list2].copy(deep=True)
+        setup_project = st.form_submit_button('SET UP PROJECT')
+        if setup_project:
+            st.session_state.selection_pro = [st.session_state.select_country2, st.session_state.select_lob2, st.session_state.select_site2, st.session_state.select_prsize2, st.session_state.select_csize2] #list of filters applied
+            st.session_state.filter_list2 = filter_gen(st.session_state.selection_pro,df)
 
+            st.session_state.df_p1b = df2[st.session_state.filter_list2].copy(deep=True)
+
+    pr_setup = st.expander("EXPAND", expanded=True)
+    with pr_setup:
         ## EXAMPLE PROJECT - SIMULATION
+
         df_p1 = df2[(df2['COUNTRY']=='Argentina')&(df2['LOB']=='O&G - Upstream')&(df2['PR_SIZE']=='<20')&(df2['MC_SIZE']=='Small')&(df2['SITE']=='Harsh >50% of activity duration')]
 
         figures_p01 = const_figures(df_p1, st.session_state.df_p1b, st.session_state.hist_xbin_size2, df_coef, df_part_index)
-        st.session_state.figures_p1_fit = fit_distr(st.session_state.df_p1b, st.session_state.hist_xbin_size3)
+
         st.session_state.pre_stat = df_stats(st.session_state.df_p1b)
 
         pr01a, pr01b = st.columns(2)
@@ -289,8 +303,14 @@ def page_three():
             st.plotly_chart(figures_p01[1], use_container_width=True)
 
     st.header("Pre-mitigation statistics")
+
     pr_analysis = st.expander('EXPAND', expanded=True)
     with pr_analysis:
+        if 'hist_xbin_size3' not in st.session_state: st.session_state.hist_xbin_size3 = 0.02
+        pr02s1, pr02s2 = st.columns((1,5))
+        with pr02s1:
+            st.slider('Fitting curve step length', 0.01, 0.1, key='hist_xbin_size3')
+        st.session_state.figures_p1_fit = fit_distr(st.session_state.df_p1b, st.session_state.hist_xbin_size3)
         pr02a, pr02b = st.columns(2)
         with pr02a:
             st.subheader('Lognormal fitting on historical data')
@@ -339,7 +359,7 @@ def page_three():
 
 def page_four():
     st.header("Project - Predictive analytics")
-    st.subheader("Analize risk mitigation and conduct an agile Quantitative Schedule Risk Analysis session")
+    st.subheader("Analize risks mitigation and conduct an agile Quantitative Schedule Risk Analysis session")
     risk_mitigate = st.expander('MITIGATION ANALYSIS', expanded=True)
 
     # Generates df and figures in mitigation page in case a project wasn't set in the previus step
