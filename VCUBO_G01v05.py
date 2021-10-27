@@ -14,7 +14,7 @@ import streamlit_analytics as sta
 from utils import (partials, df_stats, filter_gen, const_figures, fit_distr, compute_partials, update_impact, scatter_hist, fit_probs)
 
 
-st.set_page_config(page_title='QSRA vcubo', page_icon='favicon.png',initial_sidebar_state='collapsed', menu_items={'Get Help': 'https://vcubo.co/contact','Report a bug': "https://vcubo.co/contact",'About': " Unbiased risk ananlysis. *vcubo*"})
+st.set_page_config(page_title='QSRA vcubo', page_icon='favicon.png', layout='wide' ,initial_sidebar_state='collapsed', menu_items={'Get Help': 'https://vcubo.co/contact','Report a bug': "https://vcubo.co/contact",'About': " Unbiased risk ananlysis. *vcubo*"})
 
 # DATA IMPORT #
 @st.cache
