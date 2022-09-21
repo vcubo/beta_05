@@ -5,3 +5,5 @@ plotly
 scipy
 hydralit_components
 streamlit_analytics
+ipywidgets>=7.0.0
+
