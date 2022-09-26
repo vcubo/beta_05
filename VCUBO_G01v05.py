@@ -9,7 +9,7 @@ import plotly.express as px
 
 import streamlit as st
 import hydralit_components as hc
-import streamlit_analytics as sta
+#import streamlit_analytics as sta
 
 from utils import (partials, df_stats, filter_gen, const_figures, fit_distr, compute_partials, update_impact, scatter_hist, fit_probs)
 
@@ -43,7 +43,7 @@ df_coef = {'COUNTRY':0.25,'LOB':0.05,'SITE':0.4,'PSIZE':0.3,'CSIZE':0.2,'SOC':0.
 df_part_index = ['Country','LoB','Site','Project Size', 'Contractor',
                                'Social', 'Procurement', 'Engineering', 'Weather', 'Management']
 
-sta.start_tracking()
+#sta.start_tracking()
 if __name__ =="__main__":
 
     with st.sidebar:
@@ -469,4 +469,4 @@ def page_five():
 if __name__ == "__main__":
     main()
 
-sta.stop_tracking()
+#sta.stop_tracking()
